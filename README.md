@@ -11,7 +11,7 @@ O produto combina a praticidade de uma biblioteca como a Steam com a navegação
 
 ## Estado atual
 
-Versão: `v0.3.0`.
+Versão: `v0.3.1`.
 
 Nesta versão, o Ludex já possui o primeiro fluxo real local:
 
@@ -21,6 +21,7 @@ Nesta versão, o Ludex já possui o primeiro fluxo real local:
 - persistência temporária em `localStorage`, enquanto SQLite não é integrado;
 - configuração local do caminho do PCSX2;
 - launcher nativo para abrir jogos PS2 com PCSX2;
+- detecção automática da pasta PS2 configurada ao abrir a biblioteca;
 - validações de caminho, extensão e execução sem shell.
 
 Ainda não há SQLite, scanner incremental, metadados reais, download de capas, backend cloud ou suporte real a PS3.
@@ -66,16 +67,16 @@ npm run dev:web
 
 ### Fluxo local PS2
 
-1. Abra **Importar jogos**.
-2. Informe a pasta da biblioteca, por exemplo:
+1. Abra **Configurações** e confirme a pasta da biblioteca PS2, por exemplo:
 
    ```text
    F:\ISOs PS2
    ```
 
-3. Clique em **Analisar biblioteca**.
-4. Adicione os jogos encontrados à biblioteca.
-5. Abra **Configurações** e confirme o caminho do PCSX2, por exemplo:
+2. Mantenha **Detectar jogos automaticamente** ligado.
+3. Abra a **Home**. O Ludex escaneia a pasta configurada e atualiza a biblioteca.
+4. Se necessário, clique em **Reescanear** para forçar uma nova varredura.
+5. Confirme o caminho do PCSX2, por exemplo:
 
    ```text
    F:\PCSX2
@@ -151,6 +152,14 @@ Ficam fora do MVP: PS1, sincronização cloud, download automático de ROMs/ISOs
 - [x] configuração local do PCSX2;
 - [x] launcher nativo para PCSX2;
 - [x] validações básicas de segurança local.
+
+### v0.3.1 — Detecção automática
+
+- [x] auto-scan da pasta PS2 configurada ao abrir a biblioteca;
+- [x] botão de reescaneamento manual na Home;
+- [x] configuração da pasta PS2 nas preferências;
+- [x] importação salva a pasta como origem automática;
+- [x] feedback visual de sincronização e erros do scanner.
 
 ### Próximas versões
 

@@ -1,10 +1,21 @@
 import type { ScanResult, ScannedFile } from "@/features/library-scanner/scanner.types";
+import { scannerService } from "@/features/library-scanner/scanner.service";
+import { settingsService } from "@/features/settings/settings.service";
 import type { Game, Platform } from "@/types/domain";
 
 export interface GameQuery {
   search?: string;
   platform?: Platform | "ALL";
   favoritesOnly?: boolean;
+}
+
+export interface LibrarySyncResult {
+  scanResult: ScanResult;
+  games: Game[];
+}
+
+interface ImportScanOptions {
+  pruneMissingFromSource?: boolean;
 }
 
 const libraryStorageKey = "ludex.library.games.v1";
@@ -32,6 +43,19 @@ const readStoredGames = (): Game[] => {
 
 const writeStoredGames = (games: Game[]) => {
   window.localStorage.setItem(libraryStorageKey, JSON.stringify(games));
+};
+
+const normalizePathForCompare = (path: string) =>
+  path.replaceAll("\\", "/").replace(/\/+$/g, "").toLocaleLowerCase("pt-BR");
+
+const isInsideFolder = (filePath: string, folderPath: string) => {
+  const normalizedFilePath = normalizePathForCompare(filePath);
+  const normalizedFolderPath = normalizePathForCompare(folderPath);
+
+  return (
+    normalizedFilePath === normalizedFolderPath ||
+    normalizedFilePath.startsWith(`${normalizedFolderPath}/`)
+  );
 };
 
 const stableGameId = (filePath: string) => {
@@ -104,7 +128,7 @@ export const gamesService = {
     return readStoredGames().find((game) => game.id === id);
   },
 
-  async importScanResult(result: ScanResult): Promise<Game[]> {
+  async importScanResult(result: ScanResult, options: ImportScanOptions = {}): Promise<Game[]> {
     await wait(120);
     const existingGames = readStoredGames();
     const existingByPath = new Map(
@@ -117,13 +141,35 @@ export const gamesService = {
       importedGames.map((game) => game.filePath.toLocaleLowerCase("pt-BR")),
     );
     const manuallyKeptGames = existingGames.filter(
-      (game) => !importedPaths.has(game.filePath.toLocaleLowerCase("pt-BR")),
+      (game) =>
+        !importedPaths.has(game.filePath.toLocaleLowerCase("pt-BR")) &&
+        (!options.pruneMissingFromSource ||
+          game.platform !== result.request.platform ||
+          !isInsideFolder(game.filePath, result.request.folderPath)),
     );
     const nextGames = [...importedGames, ...manuallyKeptGames];
 
     writeStoredGames(nextGames);
 
     return nextGames;
+  },
+
+  async syncConfiguredLibrary(platform: Platform = "PS2"): Promise<LibrarySyncResult | undefined> {
+    const settings = await settingsService.get();
+    const libraryFolder = settings.libraryFolders[platform];
+
+    if (!libraryFolder?.autoScan || !libraryFolder.folderPath.trim()) {
+      return undefined;
+    }
+
+    const scanResult = await scannerService.preview({
+      folderPath: libraryFolder.folderPath,
+      platform,
+      recursive: libraryFolder.recursiveScan,
+    });
+    const games = await this.importScanResult(scanResult, { pruneMissingFromSource: true });
+
+    return { scanResult, games };
   },
 
   async clear(): Promise<void> {
