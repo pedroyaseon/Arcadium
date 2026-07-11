@@ -10,9 +10,11 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { PageHeader } from "@/components/PageHeader";
 import { gamesService, type LibraryState } from "@/features/games/games.service";
 import { settingsService } from "@/features/settings/settings.service";
+import { nativeDialogs } from "@/lib/native-dialogs";
 import type { AppSettings } from "@/features/settings/settings.types";
 
 const sections = [
@@ -28,6 +30,7 @@ export function Settings() {
   const [activeSection, setActiveSection] = useState("library");
   const [saved, setSaved] = useState(false);
   const [libraryCleared, setLibraryCleared] = useState(false);
+  const [isClearLibraryDialogOpen, setIsClearLibraryDialogOpen] = useState(false);
 
   useEffect(() => {
     void settingsService.get().then(setSettings);
@@ -44,8 +47,38 @@ export function Settings() {
   async function handleClearLibrary() {
     await gamesService.clear();
     setLibraryState({ totalGames: 0 });
+    setIsClearLibraryDialogOpen(false);
     setLibraryCleared(true);
     window.setTimeout(() => setLibraryCleared(false), 1800);
+  }
+
+  async function handlePickLibraryFolder() {
+    if (!settings) return;
+    const folderPath = await nativeDialogs.pickFolder(settings.libraryFolders.PS2?.folderPath);
+    if (!folderPath) return;
+
+    setSettings({
+      ...settings,
+      libraryFolders: {
+        ...settings.libraryFolders,
+        PS2: {
+          folderPath,
+          recursiveScan: settings.libraryFolders.PS2?.recursiveScan ?? true,
+          autoScan: settings.libraryFolders.PS2?.autoScan ?? true,
+        },
+      },
+    });
+  }
+
+  async function handlePickPcsx2Executable() {
+    if (!settings) return;
+    const executablePath = await nativeDialogs.pickExecutable(settings.emulatorPaths.PS2);
+    if (!executablePath) return;
+
+    setSettings({
+      ...settings,
+      emulatorPaths: { ...settings.emulatorPaths, PS2: executablePath },
+    });
   }
 
   if (!settings) return <div className="min-h-screen animate-pulse bg-white/[0.015]" />;
@@ -103,24 +136,34 @@ export function Settings() {
                       <span className="mb-2 block text-[10px] font-semibold text-zinc-500">
                         Pasta de ISOs PS2
                       </span>
-                      <input
-                        value={settings.libraryFolders.PS2?.folderPath ?? ""}
-                        onChange={(event) =>
-                          setSettings({
-                            ...settings,
-                            libraryFolders: {
-                              ...settings.libraryFolders,
-                              PS2: {
-                                folderPath: event.target.value,
-                                recursiveScan: settings.libraryFolders.PS2?.recursiveScan ?? true,
-                                autoScan: settings.libraryFolders.PS2?.autoScan ?? true,
+                      <div className="flex gap-2">
+                        <input
+                          value={settings.libraryFolders.PS2?.folderPath ?? ""}
+                          onChange={(event) =>
+                            setSettings({
+                              ...settings,
+                              libraryFolders: {
+                                ...settings.libraryFolders,
+                                PS2: {
+                                  folderPath: event.target.value,
+                                  recursiveScan: settings.libraryFolders.PS2?.recursiveScan ?? true,
+                                  autoScan: settings.libraryFolders.PS2?.autoScan ?? true,
+                                },
                               },
-                            },
-                          })
-                        }
-                        className="h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 font-mono text-[11px] text-zinc-400 outline-none focus:border-brand-400/30"
-                        placeholder="F:\ISOs PS2"
-                      />
+                            })
+                          }
+                          className="h-11 min-w-0 flex-1 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 font-mono text-[11px] text-zinc-400 outline-none focus:border-brand-400/30"
+                          placeholder="F:\ISOs PS2"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void handlePickLibraryFolder()}
+                          className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-xs font-semibold text-zinc-400 hover:text-white"
+                        >
+                          <FolderOpen size={15} />
+                          Selecionar
+                        </button>
+                      </div>
                       <p className="mt-2 text-[10px] leading-relaxed text-zinc-600">
                         Ao abrir a Home, o Ludex escaneia essa pasta e atualiza a biblioteca local.
                       </p>
@@ -193,7 +236,7 @@ export function Settings() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => void handleClearLibrary()}
+                      onClick={() => setIsClearLibraryDialogOpen(true)}
                       disabled={libraryState.totalGames === 0}
                       className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-rose-300/15 bg-rose-400/[0.07] px-4 text-xs font-semibold text-rose-100/80 hover:bg-rose-400/[0.11] disabled:cursor-not-allowed disabled:opacity-45"
                     >
@@ -234,17 +277,27 @@ export function Settings() {
                       <span className="mb-2 block text-[10px] font-semibold text-zinc-500">
                         Pasta ou executável
                       </span>
-                      <input
-                        value={settings.emulatorPaths.PS2 ?? ""}
-                        onChange={(event) =>
-                          setSettings({
-                            ...settings,
-                            emulatorPaths: { ...settings.emulatorPaths, PS2: event.target.value },
-                          })
-                        }
-                        className="h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 font-mono text-[11px] text-zinc-400 outline-none focus:border-brand-400/30"
-                        placeholder="F:\PCSX2 ou F:\PCSX2\pcsx2-qt.exe"
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          value={settings.emulatorPaths.PS2 ?? ""}
+                          onChange={(event) =>
+                            setSettings({
+                              ...settings,
+                              emulatorPaths: { ...settings.emulatorPaths, PS2: event.target.value },
+                            })
+                          }
+                          className="h-11 min-w-0 flex-1 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 font-mono text-[11px] text-zinc-400 outline-none focus:border-brand-400/30"
+                          placeholder="F:\PCSX2 ou F:\PCSX2\pcsx2-qt.exe"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => void handlePickPcsx2Executable()}
+                          className="inline-flex h-11 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-xs font-semibold text-zinc-400 hover:text-white"
+                        >
+                          <FolderOpen size={15} />
+                          Selecionar
+                        </button>
+                      </div>
                       <p className="mt-2 text-[10px] leading-relaxed text-zinc-600">
                         O Ludex valida o caminho e inicia o PCSX2 diretamente, sem shell.
                       </p>
@@ -354,6 +407,15 @@ export function Settings() {
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={isClearLibraryDialogOpen}
+        title="Limpar índice local?"
+        description="Essa ação remove apenas a biblioteca indexada no Ludex. Os arquivos originais de jogos não são apagados, movidos ou modificados."
+        confirmLabel="Limpar índice"
+        tone="danger"
+        onCancel={() => setIsClearLibraryDialogOpen(false)}
+        onConfirm={() => void handleClearLibrary()}
+      />
     </div>
   );
 }
