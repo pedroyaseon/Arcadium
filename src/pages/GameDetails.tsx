@@ -10,6 +10,8 @@ import {
   Play,
   RefreshCw,
   Star,
+  Images,
+  Youtube,
   Square,
   Settings2,
 } from "lucide-react";
@@ -29,6 +31,7 @@ import {
 import { settingsService } from "@/features/settings/settings.service";
 import { formatLastPlayed, formatPlaytime } from "@/lib/formatters";
 import type { Game, LaunchProfile, PlaySession } from "@/types/domain";
+import type { GameArtwork } from "@/types/domain";
 
 export function GameDetails() {
   const { gameId = "" } = useParams();
@@ -45,6 +48,7 @@ export function GameDetails() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
   const [metadataMessage, setMetadataMessage] = useState<string>();
+  const [selectedArtwork, setSelectedArtwork] = useState<GameArtwork>();
 
   useEffect(() => {
     let isActive = true;
@@ -181,7 +185,7 @@ export function GameDetails() {
       if (updatedGame) setGame(updatedGame);
       setMetadataMessage(
         updatedGame?.metadataStatus === "matched"
-          ? "Informações atualizadas pela RAWG."
+          ? "Informações atualizadas pelos providers configurados."
           : "Nenhuma correspondência de PS2 foi encontrada na RAWG.",
       );
     } catch (error) {
@@ -216,14 +220,15 @@ export function GameDetails() {
     );
   }
 
-  const cover = game.coverLocalPath ?? game.coverUrl;
+  const cover = game.coverLocalPath ?? game.metadata?.cover?.imageUrl ?? game.coverUrl;
+  const background = game.metadata?.background?.imageUrl;
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {cover && (
+      {(background ?? cover) && (
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[540px] overflow-hidden opacity-30">
           <img
-            src={cover}
+            src={background ?? cover}
             alt=""
             className="size-full scale-125 object-cover object-[50%_35%] blur-[65px]"
           />
@@ -300,7 +305,7 @@ export function GameDetails() {
               >
                 <RefreshCw size={15} className={isFetchingMetadata ? "animate-spin" : ""} />
                 {isFetchingMetadata
-                  ? "Consultando RAWG..."
+                  ? "Consultando providers..."
                   : game.metadataStatus === "matched"
                     ? "Atualizar informações"
                     : "Buscar informações"}
@@ -432,6 +437,69 @@ export function GameDetails() {
                 </div>
               </section>
             )}
+
+            {game.metadata?.screenshots.length ? (
+              <section className="mt-6 max-w-5xl">
+                <div className="mb-3 flex items-center gap-2">
+                  <Images size={16} className="text-brand-300" />
+                  <h2 className="text-sm font-semibold text-white">Galeria</h2>
+                </div>
+                <div className="flex gap-3 overflow-x-auto pb-3">
+                  {game.metadata.screenshots.map((artwork) => (
+                    <button
+                      type="button"
+                      key={artwork.imageUrl}
+                      onClick={() => setSelectedArtwork(artwork)}
+                      className="aspect-video w-64 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025]"
+                    >
+                      <img
+                        src={artwork.imageUrl}
+                        alt={`Screenshot de ${game.title}`}
+                        loading="lazy"
+                        className="size-full object-cover transition-transform hover:scale-[1.03]"
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {game.metadata?.videos.length ? (
+              <section className="mt-6 max-w-5xl">
+                <div className="mb-3 flex items-center gap-2">
+                  <Youtube size={17} className="text-rose-400" />
+                  <h2 className="text-sm font-semibold text-white">Vídeos</h2>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {game.metadata.videos.map((video) => (
+                    <button
+                      type="button"
+                      key={video.externalId}
+                      onClick={() => video.watchUrl && void openUrl(video.watchUrl)}
+                      className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] text-left"
+                    >
+                      {video.thumbnailUrl && (
+                        <img
+                          src={video.thumbnailUrl}
+                          alt=""
+                          loading="lazy"
+                          className="aspect-video w-full object-cover"
+                        />
+                      )}
+                      <p className="truncate p-3 text-xs font-semibold text-zinc-300">
+                        {video.title ?? "Assistir no YouTube"}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-[10px] text-zinc-600">
+                  Vídeos externos referenciados pela IGDB. O Ludex não hospeda esse conteúdo.
+                </p>
+              </section>
+            ) : null}
 
             {activeSession && (
               <div className="mt-5 max-w-3xl rounded-2xl border border-emerald-300/10 bg-emerald-300/[0.035] p-4">
@@ -580,6 +648,20 @@ export function GameDetails() {
           </div>
         </div>
       </div>
+      {selectedArtwork && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-black/85 p-5"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelectedArtwork(undefined)}
+        >
+          <img
+            src={selectedArtwork.imageUrl}
+            alt={`Screenshot ampliada de ${game.title}`}
+            className="max-h-[90vh] max-w-[94vw] rounded-2xl object-contain shadow-2xl"
+          />
+        </div>
+      )}
     </div>
   );
 }
