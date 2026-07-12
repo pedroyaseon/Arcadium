@@ -78,6 +78,7 @@ RAWG_API_KEY=sua_chave_da_rawg
 Use o arquivo versionado `.env.example` como referência. Obtenha sua chave em
 [RAWG API](https://rawg.io/apidocs). O arquivo `.env` é ignorado pelo Git e nunca deve ser
 commitado.
+Depois de alterar a chave, reinicie o Ludex para recarregar a variável com segurança.
 
 ```bash
 npm run dev
