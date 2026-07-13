@@ -25,7 +25,7 @@ impl Default for IgdbState {
             client: Client::builder()
                 .https_only(true)
                 .timeout(Duration::from_secs(12))
-                .user_agent("Arcadium/0.6.1")
+                .user_agent("Arcadium/0.6.2")
                 .build()
                 .expect("valid IGDB HTTP client"),
         }

@@ -11,7 +11,7 @@ O produto combina a praticidade de uma biblioteca como a Steam com a navegação
 
 ## Estado atual
 
-Versão: `v0.6.1`.
+Versão: `v0.6.2`.
 
 Nesta versão, o Arcadium já possui o primeiro fluxo real local:
 
@@ -293,6 +293,13 @@ Ficam fora do MVP: PS1, sincronização cloud, download automático de ROMs/ISOs
 - [x] aplicar a nova logo e o novo ícone do Arcadium;
 - [x] simplificar a manutenção do índice local;
 - [x] remover informações técnicas de providers da interface.
+
+### v0.6.2 — Detalhes e mídia
+
+- [x] reorganizar a página de detalhes para aproveitar janelas desktop amplas;
+- [x] destacar informações, atividade, galeria e perfil de execução;
+- [x] reproduzir vídeos do YouTube dentro do Arcadium;
+- [x] restringir embeds a IDs válidos e ao domínio `youtube-nocookie.com` via CSP.
 
 ### Próximas versões
 
