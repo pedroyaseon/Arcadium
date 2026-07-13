@@ -417,7 +417,7 @@ export function Settings() {
                           },
                         })
                       }
-                      className="h-12 w-full rounded-xl border border-white/[0.08] bg-zinc-950 px-3 text-xs text-zinc-300 outline-none"
+                      className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/20 px-3 text-xs text-zinc-300 outline-none"
                     >
                       <option value="native">Nativo</option>
                       <option value="2x">2x</option>
