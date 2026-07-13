@@ -51,7 +51,6 @@ pub fn run() {
     tauri::Builder::default()
         .manage(scanner::LibraryWatcherState::default())
         .manage(metadata::igdb::IgdbState::default())
-        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             migrate_legacy_app_data(app);
             tauri::WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])?.build()?;

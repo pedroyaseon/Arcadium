@@ -3,14 +3,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  FolderOpen,
   Images,
   Info,
   Play,
   Square,
   X,
 } from "lucide-react";
-import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { GameVideoPlayer } from "@/components/GameVideoPlayer";
@@ -372,20 +370,6 @@ export function GameDetails() {
                 </dl>
               </section>
             )}
-
-            <section className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5">
-              <h2 className="text-sm font-semibold text-white">Arquivo local</h2>
-              <p className="mt-3 break-all font-mono text-[10px] leading-5 text-zinc-500">
-                {game.filePath}
-              </p>
-              <button
-                type="button"
-                onClick={() => void revealItemInDir(game.filePath)}
-                className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-xs font-semibold text-zinc-400 hover:text-white"
-              >
-                <FolderOpen size={15} /> Abrir pasta
-              </button>
-            </section>
 
             {recentSessions.length > 0 && (
               <section className="rounded-[22px] border border-white/[0.07] bg-white/[0.025] p-5">
