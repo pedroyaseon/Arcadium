@@ -5,8 +5,6 @@ import {
   ChevronRight,
   Clock3,
   FolderOpen,
-  Gamepad2,
-  HardDrive,
   Images,
   Info,
   Play,
@@ -298,13 +296,23 @@ export function GameDetails() {
                   <Square size={14} fill="currentColor" /> Finalizar sessão
                 </button>
               )}
-              <div className="flex h-12 items-center gap-3 rounded-2xl border border-white/[0.075] bg-black/20 px-4 backdrop-blur-sm">
-                <Gamepad2 size={16} className="text-zinc-500" />
+              <div className="flex h-12 min-w-36 items-center gap-3 rounded-2xl border border-white/[0.075] bg-black/20 px-4 backdrop-blur-sm">
+                <Clock3 size={15} className="text-zinc-500" />
                 <div>
-                  <p className="text-[9px] text-zinc-600">Emulador</p>
-                  <p className="text-xs font-semibold text-zinc-300">PCSX2 · padrão</p>
+                  <p className="text-[9px] text-zinc-600">Tempo jogado</p>
+                  <p className="text-xs font-semibold text-zinc-300">
+                    {formatPlaytime(game.playtimeSeconds)}
+                  </p>
                 </div>
-                <Check size={14} className="text-emerald-400" />
+              </div>
+              <div className="flex h-12 min-w-40 items-center gap-3 rounded-2xl border border-white/[0.075] bg-black/20 px-4 backdrop-blur-sm">
+                <Play size={15} className="text-zinc-500" />
+                <div>
+                  <p className="text-[9px] text-zinc-600">Última sessão</p>
+                  <p className="text-xs font-semibold text-zinc-300">
+                    {formatLastPlayed(game.lastPlayedAt)}
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -330,27 +338,7 @@ export function GameDetails() {
           </div>
         </header>
 
-        <dl className="mt-8 grid grid-cols-2 gap-3 lg:ml-[290px] lg:grid-cols-4 xl:ml-[320px]">
-          {[
-            { label: "Tempo jogado", value: formatPlaytime(game.playtimeSeconds), icon: Clock3 },
-            { label: "Última sessão", value: formatLastPlayed(game.lastPlayedAt), icon: Play },
-            { label: "Formato", value: game.fileExtension.toUpperCase(), icon: HardDrive },
-            { label: "Serial", value: game.serial ?? "—", icon: Info },
-          ].map(({ label, value, icon: Icon }) => (
-            <div
-              key={label}
-              className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 backdrop-blur-sm"
-            >
-              <div className="flex items-center gap-2 text-zinc-600">
-                <Icon size={14} />
-                <dt className="text-[10px]">{label}</dt>
-              </div>
-              <dd className="mt-2 truncate text-xs font-semibold text-zinc-300">{value}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <div className="mt-12 grid gap-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,.75fr)]">
+        <div className="mt-10 grid gap-8 xl:grid-cols-[minmax(0,1.7fr)_minmax(300px,.75fr)]">
           <main className="min-w-0 space-y-10">
             {game.metadata?.videos.length ? (
               <GameVideoPlayer gameTitle={game.title} videos={game.metadata.videos} />
