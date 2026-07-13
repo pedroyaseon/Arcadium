@@ -127,16 +127,11 @@ export function Settings() {
             {activeSection === "library" && (
               <div className="space-y-5">
                 <section className="rounded-3xl border border-white/[0.075] bg-white/[0.025] p-5 sm:p-7">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-base font-semibold text-white">Biblioteca PS2</h2>
-                      <p className="mt-1 text-xs text-zinc-600">
-                        Configure a pasta monitorada para detecção automática de jogos locais.
-                      </p>
-                    </div>
-                    <span className="rounded-lg border border-brand-300/10 bg-brand-400/[0.06] px-2.5 py-1 text-[9px] font-bold tracking-wider text-brand-200 uppercase">
-                      Auto-scan
-                    </span>
+                  <div>
+                    <h2 className="text-base font-semibold text-white">Biblioteca PS2</h2>
+                    <p className="mt-1 text-xs text-zinc-600">
+                      Configure a pasta monitorada para detecção automática de jogos locais.
+                    </p>
                   </div>
 
                   <div className="mt-7 space-y-5">
