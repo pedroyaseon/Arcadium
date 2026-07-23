@@ -7,6 +7,7 @@ import type {
   RawgMetadataResult,
 } from "@/features/metadata/metadata.types";
 import { normalizeGameTitle } from "@/features/metadata/title-normalizer";
+import { youtubeEmbedUrl } from "@/features/metadata/youtube";
 import type { ComposedGameMetadata, GameArtwork, GameVideo } from "@/types/domain";
 
 const igdbImageUrl = (imageId: string, size: "cover_big" | "screenshot_big" = "cover_big") =>
@@ -17,7 +18,7 @@ const youtubeVideo = (externalId: string, title?: string): GameVideo => ({
   externalId,
   title,
   watchUrl: `https://www.youtube.com/watch?v=${externalId}`,
-  embedUrl: `https://www.youtube.com/embed/${externalId}`,
+  embedUrl: youtubeEmbedUrl(externalId),
   thumbnailUrl: `https://img.youtube.com/vi/${externalId}/hqdefault.jpg`,
 });
 
